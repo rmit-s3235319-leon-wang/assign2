@@ -22,7 +22,7 @@
 			<h1 style="margin: 0" class="display-2 pageHeader">Youtube Video Visualiser</h1>
 		</div>
 	</div>
-	<div class="container">
+	<div class="container-fluid">
 		<form action="" method="GET" class="mb-5">
 			<div class="input-group">
 				<input type="text" name="searchBar" id="searchBar" placeholder="Search" autocomplete="off" class="form-control">
@@ -46,23 +46,25 @@
 				foreach($videoList->items as $item){
 					if(isset($item->id->videoId)){
 									$viewCount = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=statistics&id=' .$item->id->videoId.'&key='.$API_key.''));
-					echo '<div class="youtube-video col-sm-3">
+					echo '<div class="youtube-video col-sm-4 mb-2">
 					<iframe width="280" height="150" src="https://www.youtube.com/embed/'.$item->id->videoId.'" frameborder="0" allowfullscreen></iframe>
-					<h2>'. $item->snippet->title .'</h2>
-					<h1>'.$viewCount->items[0]->statistics->viewCount.'</h1><h1>'.$viewCount->items[0]->statistics->likeCount.'</h1>
+					<h4>'. $item->snippet->title .'</h4>
+					<h6>Views: '.$viewCount->items[0]->statistics->viewCount.'</h6><h6>Likes: '.$viewCount->items[0]->statistics->likeCount.'</h6>
 					</div>';
 					}
 				}
 			}
 		?>
-		</div>
+	</div>
 	</div>
 	<script type="text/javascript">
 		document.getElementById('search').addEventListener("click",searchVideo);
 
 		function searchVideo(){
 			var searchItem = document.getElementById('searchBar').value;
-			document.getElementById('searchInput').value = searchItem;
+			var token = searchItem.split(" ");
+			var joinedToken = token.join("+");
+			document.getElementById('searchInput').value = joinedToken;
 		}
 	</script>
 </body>
