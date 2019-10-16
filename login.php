@@ -25,28 +25,42 @@
 	<div class="container">
 		<form action="" method="GET">
 			<div class="input-group">
-				<input type="text" name="searchBar" placeholder="Search" autocomplete="off" class="form-control">
+				<input type="text" name="searchBar" id="searchBar" placeholder="Search" autocomplete="off" class="form-control">
+				<input type="hidden" name="searchInput" id="searchInput">
 				<div class="input-group-append">
-					<button type="submit" class="btn btn-primary">Search</button>
+					<button type="submit" class="btn btn-primary" id="search">Search</button>
 				</div>
 			</div>
 		</form>
 	</div>
-<?php 
-	$API_key = 'AIzaSyC-bz33drTNC_vAe7YB1LpdzFHivbYTk7Y';
-	$channelID = 'UCk8ZIMJxSO9-pUg7xyrnaFQ';
-	$maxResults = 10;
-	$videoList = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/search?order=date&part=snippet&channelId='.$channelID.'&maxResults='.$maxResults.'&key='.$API_key));
+	<script type="text/javascript">
+		document.getElementById('search').addEventListener("click",searchVideo);
 
-	foreach($videoList->items as $item){
-		if(isset($item->id->videoId)){
-						$viewCount = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=statistics&id=' .$item->id->videoId.'&key='.$API_key.''));
-		echo '<div class="youtube-video">
-		<iframe width="280" height="150" src="https://www.youtube.com/embed/'.$item->id->videoId.'" frameborder="0" allowfullscreen></iframe>
-		<h2>'. $item->snippet->title .'</h2>
-		<h1>'.$viewCount->items[0]->statistics->viewCount.'</h1><h1>'.$viewCount->items[0]->statistics->likeCount.'</h1>
-		</div>';
+		function searchVideo(){
+			var searchItem = document.getElementById('searchBar').value;
+			document.getElementById('searchInput').value = searchItem;
 		}
+	</script>
+<?php 
+	$keyword='';
+	if(isset($_GET['searchInput'])){
+		$keyword = $_GET['searchInput'];
+	}
+	if(!empty($keyword)){
+		$API_key = 'AIzaSyC-bz33drTNC_vAe7YB1LpdzFHivbYTk7Y';
+		$maxResults = 10;
+		$videoList = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/search?order=viewCount&part=snippet&q='.$keyword.'&maxResults='.$maxResults.'&key='.$API_key));
+
+		foreach($videoList->items as $item){
+			if(isset($item->id->videoId)){
+							$viewCount = json_decode(file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=statistics&id=' .$item->id->videoId.'&key='.$API_key.''));
+			echo '<div class="youtube-video">
+			<iframe width="280" height="150" src="https://www.youtube.com/embed/'.$item->id->videoId.'" frameborder="0" allowfullscreen></iframe>
+			<h2>'. $item->snippet->title .'</h2>
+			<h1>'.$viewCount->items[0]->statistics->viewCount.'</h1><h1>'.$viewCount->items[0]->statistics->likeCount.'</h1>
+			</div>';
+			}
+	}
 }
 ?>
 </body>
